@@ -21,7 +21,8 @@ def init_db():
               CREATE TABLE IF NOT EXISTS ideas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 author TEXT,
-                idea TEXT
+                idea TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
               )
               """)
     conn.commit()
@@ -40,7 +41,7 @@ def get_ideas():
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute("SELECT author,idea FROM ideas")
+    c.execute("SELECT author,idea,created_at FROM ideas")
     ideas = c.fetchall()
     conn.close()
     return ideas
@@ -49,13 +50,15 @@ def make_datatable():
     dt = ft.DataTable()
     dt.columns = [
         ft.DataColumn(ft.Text("Autor")),
-        ft.DataColumn(ft.Text("Idee"))
+        ft.DataColumn(ft.Text("Idee")),
+        ft.DataColumn(ft.Text("Erstellt am"))
         ]    
     for idea in get_ideas():
         dt.rows.append(
             ft.DataRow(cells= [
                 ft.DataCell(ft.Text(idea["author"])),
-                ft.DataCell(ft.Text(idea["idea"]))
+                ft.DataCell(ft.Text(idea["idea"])),
+                ft.DataCell(ft.Text(idea["created_at"]))
             ]))
 
     return dt
@@ -79,7 +82,7 @@ def main(page: ft.Page):
     page.add(ft.Markdown("# Kummerkasten"))
 
     authorfield = ft.TextField(label="Autor", value="Anonym")
-    ideafield = ft.TextField(label="Idee", autofocus=True)    
+    ideafield = ft.TextField(label="Idee", autofocus=True, multiline=True)
     if page.client_storage.contains_key("author"):
         authorfield.value = page.client_storage.get("author")
     row = ft.Column(controls= [
@@ -87,7 +90,6 @@ def main(page: ft.Page):
         ideafield,
         ft.ElevatedButton(text="Senden", on_click=btn_clicked)
     ])
-    #page.add(authorfield)
     page.add(row)
 
     page.add(ft.Markdown("## Alle Ideen"))
