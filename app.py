@@ -1,14 +1,20 @@
 # https://flet.dev/docs/
 import flet as ft
 import sqlite3
+import logging as log
 
 PORT = 5566
 DB_FILE = "ideas.db"
 
+log.basicConfig(level=log.DEBUG)
+# https://flet.dev/docs/guides/python/logging
+# To reduce verbosity you may suppress logging messages from flet_core module, but adding:
+log.getLogger("flet_core").setLevel(log.INFO)
+
 # TODO add auth https://flet.dev/docs/guides/python/authentication
 
 def init_db():
-    print("init db", DB_FILE)
+    log.debug("init db", DB_FILE)
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("""
@@ -22,6 +28,7 @@ def init_db():
     conn.close()
 
 def add_idea(author, idea):
+    log.debug(f"add idea: {author} {idea}")
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("INSERT INTO ideas (author, idea) VALUES (?,?)", 
@@ -47,7 +54,7 @@ def main(page: ft.Page):
         if authorfield.value != "Anonym":
             page.client_storage.set("author", authorfield.value)
 
-        print("adding idea:", ideafield.value)
+        log.debug("adding idea:", ideafield.value)
         add_idea(authorfield.value, ideafield.value)
         page.add(ft.Text(f"NEU {ideafield.value}"))
         ideafield.value = ""
@@ -73,6 +80,7 @@ def main(page: ft.Page):
     page.add(lv)
 
 
+log.info("starting app")
 init_db()
 ft.app(target=main, port=PORT, 
        view=ft.AppView.WEB_BROWSER,
