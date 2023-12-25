@@ -74,4 +74,6 @@ def main(page: ft.Page):
 
 
 init_db()
-ft.app(target=main, port=PORT, view=ft.AppView.WEB_BROWSER)
+ft.app(target=main, port=PORT, 
+       view=ft.AppView.WEB_BROWSER,
+       assets_dir="assets")
