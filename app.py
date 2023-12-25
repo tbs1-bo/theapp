@@ -45,6 +45,21 @@ def get_ideas():
     conn.close()
     return ideas
 
+def make_datatable():
+    dt = ft.DataTable()
+    dt.columns = [
+        ft.DataColumn(ft.Text("Autor")),
+        ft.DataColumn(ft.Text("Idee"))
+        ]    
+    for idea in get_ideas():
+        dt.rows.append(
+            ft.DataRow(cells= [
+                ft.DataCell(ft.Text(idea["author"])),
+                ft.DataCell(ft.Text(idea["idea"]))
+            ]))
+
+    return dt
+
 def main(page: ft.Page):
     def btn_clicked(e):
         if ideafield.value == "":
@@ -74,10 +89,8 @@ def main(page: ft.Page):
     page.add(authorfield)
     page.add(row)
 
-    lv = ft.ListView(expand=False)
-    for idea in get_ideas():
-        lv.controls.append(ft.Text(f"{idea['author']}: {idea['idea']}"))
-    page.add(lv)
+    page.add(ft.Text("Alle Ideen"))
+    page.add(make_datatable())
 
 
 log.info("starting app")
