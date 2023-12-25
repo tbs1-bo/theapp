@@ -12,6 +12,7 @@ log.basicConfig(level=log.DEBUG)
 log.getLogger("flet_core").setLevel(log.INFO)
 
 # TODO add auth https://flet.dev/docs/guides/python/authentication
+# TODO add notification mechanism https://flet.dev/docs/guides/python/pub-sub
 
 def init_db():
     log.debug("init db", DB_FILE)
@@ -63,7 +64,11 @@ def make_datatable():
 
     return dt
 
+
 def main(page: ft.Page):
+    def msg_received(topic, msg):
+        page.add(ft.Text(f"msg received: ({topic}) {msg}"))
+
     def btn_clicked(e):
         if ideafield.value == "":
             ideafield.error_text = "Bitte gib eine Idee ein!"
@@ -74,6 +79,8 @@ def main(page: ft.Page):
 
         log.debug("adding idea:", ideafield.value)
         add_idea(authorfield.value, ideafield.value)
+        page.pubsub.send_all_on_topic("ideas", 
+                f"Neue Idee von {authorfield.value}: {ideafield.value}")
         page.add(ft.Text(f"NEU {ideafield.value}"))
         ideafield.value = ""
         ideafield.focus()
@@ -94,6 +101,8 @@ def main(page: ft.Page):
 
     page.add(ft.Markdown("## Alle Ideen"))
     page.add(make_datatable())
+
+    page.pubsub.subscribe_topic("ideas", msg_received)
 
 
 log.info("starting app")
