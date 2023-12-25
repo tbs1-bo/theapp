@@ -14,23 +14,26 @@ def init_db():
     c.execute("""
               CREATE TABLE IF NOT EXISTS ideas (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                author TEXT,
                 idea TEXT
               )
               """)
     conn.commit()
     conn.close()
 
-def add_idea(idea):
+def add_idea(author, idea):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("INSERT INTO ideas (idea) VALUES (?)", (idea,))
+    c.execute("INSERT INTO ideas (author, idea) VALUES (?,?)", 
+              (author,idea))
     conn.commit()
     conn.close()
 
 def get_ideas():
     conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute("SELECT * FROM ideas")
+    c.execute("SELECT author,idea FROM ideas")
     ideas = c.fetchall()
     conn.close()
     return ideas
@@ -43,7 +46,7 @@ def main(page: ft.Page):
             return
 
         print("adding idea:", ideafield.value)
-        add_idea(ideafield.value)
+        add_idea(authorfield.value, ideafield.value)
         page.add(ft.Text(f"NEU {ideafield.value}"))
         ideafield.value = ""
         ideafield.focus()
@@ -52,15 +55,17 @@ def main(page: ft.Page):
     page.add(ft.Text("# Kummerkasten"))
 
     ideafield = ft.TextField(label="Idee", autofocus=True)
+    authorfield = ft.TextField(label="Autor", value="Anonym")
     row = ft.Row(controls= [
         ideafield,
         ft.ElevatedButton(text="Senden", on_click=btn_clicked)
     ])
+    page.add(authorfield)
     page.add(row)
 
     lv = ft.ListView(expand=False)
-    for idead_id, idea in get_ideas():
-        lv.controls.append(ft.Text(f"{idead_id}: {idea}"))
+    for idea in get_ideas():
+        lv.controls.append(ft.Text(f"{idea['author']}: {idea['idea']}"))
     page.add(lv)
 
 
