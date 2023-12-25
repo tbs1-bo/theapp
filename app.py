@@ -44,6 +44,8 @@ def main(page: ft.Page):
             idea.error_text = "Bitte gib eine Idee ein!"
             page.update()
             return
+        if authorfield.value != "Anonym":
+            page.client_storage.set("author", authorfield.value)
 
         print("adding idea:", ideafield.value)
         add_idea(authorfield.value, ideafield.value)
@@ -54,8 +56,10 @@ def main(page: ft.Page):
 
     page.add(ft.Text("# Kummerkasten"))
 
-    ideafield = ft.TextField(label="Idee", autofocus=True)
+    ideafield = ft.TextField(label="Idee", autofocus=True)    
     authorfield = ft.TextField(label="Autor", value="Anonym")
+    if page.client_storage.contains_key("author"):
+        authorfield.value = page.client_storage.get("author")
     row = ft.Row(controls= [
         ideafield,
         ft.ElevatedButton(text="Senden", on_click=btn_clicked)
