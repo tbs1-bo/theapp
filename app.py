@@ -5,6 +5,7 @@ import sqlite3
 PORT = 5566
 DB_FILE = "ideas.db"
 
+# TODO add auth https://flet.dev/docs/guides/python/authentication
 
 def init_db():
     print("init db", DB_FILE)
