@@ -63,7 +63,7 @@ def make_datatable():
 def main(page: ft.Page):
     def btn_clicked(e):
         if ideafield.value == "":
-            idea.error_text = "Bitte gib eine Idee ein!"
+            ideafield.error_text = "Bitte gib eine Idee ein!"
             page.update()
             return
         if authorfield.value != "Anonym":
@@ -76,20 +76,21 @@ def main(page: ft.Page):
         ideafield.focus()
         page.update()
 
-    page.add(ft.Text("# Kummerkasten"))
+    page.add(ft.Markdown("# Kummerkasten"))
 
-    ideafield = ft.TextField(label="Idee", autofocus=True)    
     authorfield = ft.TextField(label="Autor", value="Anonym")
+    ideafield = ft.TextField(label="Idee", autofocus=True)    
     if page.client_storage.contains_key("author"):
         authorfield.value = page.client_storage.get("author")
-    row = ft.Row(controls= [
+    row = ft.Column(controls= [
+        authorfield,
         ideafield,
         ft.ElevatedButton(text="Senden", on_click=btn_clicked)
     ])
-    page.add(authorfield)
+    #page.add(authorfield)
     page.add(row)
 
-    page.add(ft.Text("Alle Ideen"))
+    page.add(ft.Markdown("## Alle Ideen"))
     page.add(make_datatable())
 
 
